@@ -2,7 +2,6 @@
 
 package test
 
-import java.util.concurrent.Executors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -11,6 +10,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import java.util.concurrent.Executors
 
 open class MainAsWorkingDispatcherExtension : BeforeEachCallback, AfterEachCallback {
 
