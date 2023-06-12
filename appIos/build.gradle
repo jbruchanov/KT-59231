@@ -1,0 +1,50 @@
+//https://openbakery.org/gxp/
+//plugin is very basic
+//apply plugin: libs.plugins.xcode.get().pluginId
+
+def podInstall = tasks.register('podInstall', Exec) {
+    group = "build"
+    workingDir "${projectDir}"
+    commandLine "sh", "-c", "pod install --repo-update"
+}
+
+
+//https://slack-chats.kotlinlang.org/t/10507374/in-the-https-github-com-jetbrains-compose-multiplatform-temp
+def dummyAndPodSpec = tasks.register('dummyAndPodSpec') {
+    group = "build"
+
+    def projects = rootProject.allprojects
+        .findAll { it.name.startsWith("lib") || it.name.startsWith("shared") }
+
+    def podspecs = projects.collect { it.tasks.findByName("podspec") }
+    def linkDebug = projects.collect { it.tasks.findByName("linkPodDebugFrameworkIosSimulatorArm64") }
+    def tasks = [rootProject.task("generateDummyFramework")] + podspecs + linkDebug
+
+    dependsOn(tasks)
+}
+
+def preBuild = tasks.register('preBuild') {
+    group = "build"
+    dependsOn(dummyAndPodSpec, podInstall)
+
+}
+
+podInstall.configure {
+    mustRunAfter(dummyAndPodSpec)
+}
+
+//ios project itself is starting some gradle tasks to compile if necessary
+//therefore no need for any lib*.compile...
+tasks.register('build', Exec) {
+    group = "build"
+    workingDir "${projectDir}"
+    commandLine "sh", "-c", "xcodebuild -workspace appIos.xcworkspace/ -scheme appIos build"
+    dependsOn(preBuild)
+}
+
+tasks.register('test', Exec) {
+    group = "build"
+    workingDir "${projectDir}"
+    commandLine "sh", "-c", "xcodebuild test -workspace appIos.xcworkspace/ -scheme appIos -destination 'platform=iOS Simulator,name=iPhone 14 Pro,OS=16.4'"
+    dependsOn(preBuild)
+}

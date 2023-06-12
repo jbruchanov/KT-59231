@@ -1,0 +1,23 @@
+def common_pods
+#  pod 'lib_core', :path => '../lib-core'
+#  pod 'lib_lifecycle', :path => '../lib-lifecycle'
+  pod 'shared', :path => '../shared'
+  pod 'CocoaAsyncSocket', '7.6.5'
+  # Add the pod for Firebase Crashlytics
+  pod 'Firebase/Crashlytics'
+  # Recommended: Add the Firebase pod for Google Analytics
+  pod 'Firebase/Analytics'
+end
+
+target 'appIos' do
+  use_frameworks!
+  platform :ios, '14.1'
+  common_pods
+  
+end
+
+target 'appIosTests' do
+  use_frameworks!
+  platform :ios, '14.1'
+  common_pods
+end

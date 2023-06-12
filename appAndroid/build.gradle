@@ -1,0 +1,117 @@
+apply plugin: libs.plugins.jetbrains.compose.get().pluginId
+apply plugin: libs.plugins.android.application.get().pluginId
+apply plugin: libs.plugins.jetbrains.android.get().pluginId
+apply plugin: libs.plugins.google.services.get().pluginId
+apply plugin: libs.plugins.firebase.crashlytics.get().pluginId
+apply plugin: libs.plugins.firebase.appdistribution.get().pluginId
+apply from: "$rootProject.projectDir/build-ktlint.gradle"
+apply from: "$rootProject.projectDir/build-tools.gradle"
+
+android {
+    namespace = "com.jibru.macroalarm.android.app"
+    compileSdk = libs.versions.android.sdk.compile.get().toInteger()
+    defaultConfig {
+        applicationId = "com.jibru.macroalarm.android.app"
+        minSdk = libs.versions.android.sdk.min.get().toInteger()
+        targetSdk = libs.versions.android.sdk.target.get().toInteger()
+        versionCode = 1
+        versionName "0.0.1" + gitVersionNameSuffix()
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    signingConfigs {
+
+        /*
+         keytool.exe" -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android
+         Certificate fingerprints:
+         SHA1: 35:81:77:51:EF:1F:F1:1F:DC:3C:C0:91:AC:1A:BC:72:8B:29:37:42
+         SHA256: 7E:CB:58:55:C1:F0:66:67:33:7D:90:7E:38:47:46:3A:98:60:40:20:1D:99:F2:4A:AE:54:66:FD:45:52:51:CA
+         */
+        debug {
+            storeFile file("../debug.keystore")
+            storePassword 'android'
+            keyAlias "androiddebugkey"
+            keyPassword 'android'
+        }
+
+        release {
+            storeFile file("../debug.keystore")
+            storePassword 'android'
+            keyAlias "androiddebugkey"
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            applicationIdSuffix ".dev"
+            //logged in via Firebase CLI
+            firebaseAppDistribution {
+                releaseNotes = "git log --oneline develop..${getBranchName()}".execute().text
+                groups = "kmp-testers"
+                serviceCredentialsFile = file("../_keys/firebase-admin-service_account_kmp-dev-eca9b1cfc7f8.json")
+            }
+        }
+        release {
+            minifyEnabled true
+            firebaseCrashlytics {
+                mappingFileUploadEnabled false
+            }
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility = libs.versions.jvmtarget.get()
+        targetCompatibility = libs.versions.jvmtarget.get()
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.jvmtarget.get()
+    }
+}
+
+compose {
+    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.7-dev-k1.9.0-Beta-bb7dc8b44eb")
+}
+
+dependencies {
+    implementation(pmodules.compose())
+    implementation(pmodules.shared())
+
+    coreLibraryDesugaring libs.desuger
+
+    implementation libs.bundles.android.compose
+    implementation libs.bundles.android.compose.app
+
+    implementation libs.firebase.analytics
+    implementation libs.firebase.crashlytics
+    runtimeOnly libs.androidx.compose.ui.tooling
+}
+
+// disable google services now for release build
+android.applicationVariants.all { variant ->
+    def tasks = [
+        tasks.findByName("process${variant.name.capitalize()}GoogleServices"),
+        tasks.findByName("appDistributionUpload${variant.name.capitalize()}"),
+    ]
+
+    tasks.forEach {
+        it?.enabled = false
+    }
+}

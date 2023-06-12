@@ -1,0 +1,26 @@
+apply from: "${rootProject.projectDir}/build-library.gradle"
+apply plugin: libs.plugins.jetbrains.compose.get().pluginId
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.components.resources)
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation libs.bundles.android.core
+                implementation libs.bundles.android.compose
+            }
+        }
+    }
+}
+
+compose {
+    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.7-dev-k1.9.0-Beta-bb7dc8b44eb")
+}
+

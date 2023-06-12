@@ -1,0 +1,26 @@
+apply from: "${rootProject.projectDir}/build-library.gradle"
+
+kotlin {
+    sourceSets {
+
+        jvmMain {
+            dependencies {
+                implementation(libs.bundles.unittests.jvm)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.lifecycle.process)
+                //test-common project as a dependency for tests only, but needs to be in main as unittests are not "exported"
+                implementation(libs.bundles.unittests.jvm)
+                implementation(libs.bundles.unittests.android)
+            }
+            dependsOn(jvmMain)
+        }
+    }
+}
+
+android {
+    namespace = "com.jibru.test"
+}

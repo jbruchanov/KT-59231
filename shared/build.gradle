@@ -1,0 +1,28 @@
+apply from: "${rootProject.projectDir}/build-library-compose.gradle"
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+//                implementation(pmodules.lifecycle())
+                implementation(pmodules.compose())
+//                implementation(pmodules.mvvm())
+//                implementation(pmodules.navigation())
+//                implementation(pmodules.ui())
+//                implementation(pmodules.network())
+//                implementation(pmodules.networkupnp())
+//                implementation(pmodules.networkupnpui())
+
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.compose.mp.flow)
+                implementation(libs.bundles.ktor.client)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.lifecycle.process)
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+ext.getBranchName = {
+    return "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+}
+
+ext.gitVersionNameSuffix = {
+    def commitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def branchName = getBranchName()
+    if (branchName.startsWith("release")) {
+        return ""
+    }
+    return "-DEV_" + branchName.replace("/", "-") + "_" + commitHash
+}
