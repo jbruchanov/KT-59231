@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalObjCRefinement::class)
+
 package com.jibru.compose
 
 import androidx.compose.foundation.background
@@ -15,8 +17,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jibru.compose.ext.targetThickness
 import com.jibru.compose.modifier.applyIf
+import kotlin.experimental.ExperimentalObjCRefinement
+import kotlin.native.HiddenFromObjC
 
 @Composable
+@HiddenFromObjC
 fun DividerVertical(
     modifier: Modifier = Modifier,
     color: Color = DividersDefaults.DefaultColor,
